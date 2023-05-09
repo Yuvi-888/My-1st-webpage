@@ -1,0 +1,213 @@
+<!-- app.js file -->
+
+const express=require('express');
+const port=80;
+const app=express();
+const path=require('path');
+const mongoose = require('mongoose');
+const bodyparser=require('body-parser')
+
+mongoose.connect('mongodb://127.0.0.1:27017/contactDance');
+
+const contactschema = new mongoose.Schema({
+    name: String,
+    age: String,
+    sex: String,
+    email: String
+  });
+
+const contact = mongoose.model('contact', contactschema);
+
+app.use('/static', express.static('static')) 
+app.use(express.urlencoded())
+
+app.set('view engine', 'pug') 
+app.set('views', path.join(__dirname, 'views'))
+
+app.get('/', function (req, res) {
+    res.render('home.pug');
+ })
+
+ app.get('/contact', function (req, res) {
+    res.render('contact.pug');
+ })
+
+ app.post('/contact', function (req, res) {
+    const mydata = new contact(req.body);
+    mydata.save().then(()=>{
+        res.send('This item has been saved to the database')
+    }).catch(()=>{
+        res.send('Item was not saved to the database')
+    }); 
+    // res.render('contact.pug');
+ })
+ 
+ 
+app.listen(port, function () {
+    console.log(`Application started successfully at port ${port}`)
+ });
+
+ <!--  cd Static folder -->
+ <!-- style.css file -->
+
+ @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap');
+
+*{color: black;
+margin: 0px;
+padding: 0px;
+font-family: 'Ubuntu', sans-serif;}
+
+#navbar{background-color:rgb(67, 66, 66);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+ul{display: flex;}
+
+li{display: flex;
+list-style: none;
+padding: 20px;
+font-size: large;
+}
+
+li a{text-decoration: none;
+color: white;
+font-weight: bold;
+font-size: 18px;}
+
+li a:hover{color: rgb(227, 32, 32);
+text-decoration: underline;}
+
+#navbar img{width: 45px;
+height: 45px;
+position: absolute;
+left:25px;
+}
+
+#introsection{display: flex;
+    flex-direction: column;
+justify-content: center;
+align-items: center;
+font-size: 22px;
+height: 485px;
+background:url("/static/newdancebg.png");
+background-size:cover;
+background-repeat: no-repeat;
+font-size: 29px;
+font-weight: bold;
+opacity:70%;
+z-index: 1;
+
+}
+
+#introsection div.small{font-size: 17px;
+}
+
+#introsection div{margin: 5px;}
+
+#sponsorsection{
+display: flex;
+justify-content: center;
+align-items: center;
+height: 165px;
+background-color: rgb(63, 61, 61);}
+
+h2{display: block;
+text-align: center;
+position: absolute;
+top: 74%;
+margin:6px; 
+padding: 5px;
+font-size: 20px;
+}
+
+#sponsorsection img{display: flex;
+background-repeat: no-repeat;
+background-position: relative;
+background-size: contain;
+align-items: center;
+justify-content: center;
+width: 120px;
+height: 80px;
+margin: 10px 8px;
+padding-top: 35px;}
+
+#footer{background-color: rgb(36, 36, 36);
+    color: white;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 35px;
+padding: px;}
+
+<!-- cd views folder (using Pug template engine to serve html files) -->
+<!-- base.pug -->
+
+html
+    head
+        title Dance Academy
+        block scripts
+        block style
+    body
+        nav#navbar
+            img(src="/static/logo.png", alt="no image")
+            ul
+                li #[a(href="/") Home]
+                li #[a(href="/") About]
+                li #[a(href="/") Services]
+                li #[a(href="/") Class Info]
+                li #[a(href="/contact") Contact Us]  
+            
+        block content
+
+        footer#footer
+            | Copyright Dance Website @2023
+    
+
+<!-- home.pug -->
+
+extends base.pug
+
+block scripts
+    script(src='/static/index.js')
+
+block style
+     style
+        include ../static/style.css
+
+block content
+    section#introsection
+        div Welcome to Dance Academy
+        div.small Eat Sleep Dance Repeat
+        
+    section#sponsorsection
+        h2 Our Sponsors
+        img(src="../static/applelogo.png", alt="no image")
+        img(src="../static/microsoftlogo.png", alt="no image")
+        img(src="../static/googlelogo.png", alt="no image")
+        img(src="../static/hplogo.png", alt="no image")  
+
+<!-- contact.pug -->
+
+extends base.pug
+
+block scripts
+    script(src='/static/index.js')
+
+block style
+     style
+      include ../static/style.css
+      include ../static/contactstyle.css
+
+block content
+    p Contact Us
+
+    form(action= '/contact', method= 'post', class= 'myForm')
+        input(type="text" name="name" placeholder='enter name:' method='post' class='myinput')
+        input(type="text" name="age" placeholder='enter age:' method='post' class='myinput')
+        input(type="text" name="sex" placeholder='enter sex:' method='post' class='myinput')
+        input(type="text" name="email" placeholder='enter email:' method='post' class='myinput')
+        button(class='btn')
+            |Submit
+        
